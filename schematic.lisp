@@ -83,7 +83,7 @@
 (defmethod schematic-reactor ((self schematic) (msg e/message:message))
   "react to a single input message to a schematic - push the message inside the schematic
    to all parts attached to given input pin"
-  (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" self (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
+  (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" (e/part:fetch-name self) (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
   (e/part:ensure-message-contains-valid-input-pin self msg)
   (let ((in-map (self-input-wire-map self))
         (schematic-input-pin (e/message:pin msg)))
@@ -107,7 +107,14 @@
   (e/part:ensure-message-contains-valid-output-pin self msg)
   (e/part:push-output self msg))
 
+(defmethod push-input ((self e/schematic:schematic) (child e/schematic:schematic) (msg e/message:message))
+  ;; "normal" sending to a child part
+  (declare (ignore self))
+  (e/part:ensure-message-contains-valid-output-pin self msg)
+  (e/part:push-output self msg))
+
 (defmethod push-input ((self e/schematic:schematic) (child e/leaf:leaf) (msg e/message:message))
   ;; "normal" sending to a child part
   (declare (ignore self))
   (e/part:push-input child msg))
+

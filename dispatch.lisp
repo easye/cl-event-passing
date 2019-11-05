@@ -75,7 +75,7 @@
                 (@release-output-queue-internally schematic p)
               (@release-output-queue-externally p))
             (setf part-list *parts-list*))))))) ;; loop until every part has an empty output queue
-                                            ;; (this can be optimized, since we know which parts have been released)
+                                            ;; (this can be optimized, since we know which parts have been released, kept unoptimized for clarity)
 
 (defun @Call-First-Times ()
   (mapc #'(lambda (part)

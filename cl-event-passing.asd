@@ -14,7 +14,7 @@
                                      (:file "pin-collection" :depends-on ("package" "pin"))
                                      (:file "message" :depends-on ("package" "pin"))
                                      (:file "part" :depends-on ("package" "message" "pin-collection"))
-                                     (:file "schematic" :depends-on ("package" "part" "wire-list" "message"))
+                                     (:file "schematic" :depends-on ("package" "part" "leaf" "wire-list" "message"))
                                      (:file "leaf" :depends-on ("package" "pin-collection"))
                                      (:file "send" :depends-on ("package" "message" "part"))
                                      (:file "receive" :depends-on ("package" "part" "message"))
