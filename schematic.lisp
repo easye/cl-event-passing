@@ -23,8 +23,8 @@
 
 (defmethod make-wire-map-slot-for-each-input ((self schematic) (in-pins (eql nil))))
 
-(defun make-schematic (&key (in-pins nil) (out-pins nil) (first-time nil))
-  (let ((schem (make-instance 'schematic :in-pins in-pins :out-pins out-pins :first-time first-time)))
+(defun make-schematic (&key (in-pins nil) (out-pins nil) (first-time nil) (name ""))
+  (let ((schem (make-instance 'schematic :in-pins in-pins :out-pins out-pins :first-time first-time :name name)))
     (make-wire-map-slot-for-each-input schem in-pins)
     schem))  
 
@@ -38,11 +38,13 @@
   (multiple-value-bind (val success)
       (gethash pin hmap)
     (unless success
-      (let ((fmtmsg (format nil "~&part ~S has no ~A pin called ~S~%" part str (e/pin:as-symbol pin))))
-        (error fmtmsg)))
+      (let ((name (e/part:fetch-name part)))
+        (let ((fmtmsg (format nil "~&part ~S has no ~A pin called ~S~%" name str (e/pin:as-symbol pin))))
+          (error fmtmsg))))
     (unless (null val)
-      (let ((fmtmsg (format nil "~&part ~S already has a wire on ~A pin ~S~%" part  str (e/pin:as-symbol pin))))
-        (error fmtmsg)))
+      (let ((name (e/part:fetch-name part)))
+        (let ((fmtmsg (format nil "~&part ~S already has a wire on ~A pin ~S~%" name  str (e/pin:as-symbol pin))))
+          (error fmtmsg))))
     t)) ;; all OK if we get here
 
 (defun ensure-no-child-wire (hmap pin part str)
@@ -72,15 +74,16 @@
   (multiple-value-bind (wire success)
       (gethash pin in-map)
     (unless success
-      (let ((fmtstr (format nil "~&can't find wire in ~S for input pin ~S~%" self (e/pin:as-symbol pin))))
-        (error fmtstr)))
+      (let ((name (e/part:fetch-name self)))
+        (let ((fmtstr (format nil "~&can't find wire in ~S for input pin ~S~%" name (e/pin:as-symbol pin))))
+          (error fmtstr))))
     #+nil(assert success)
     wire))
 
 (defmethod schematic-reactor ((self schematic) (msg e/message:message))
   "react to a single input message to a schematic - push the message inside the schematic
    to all parts attached to given input pin"
-  #+nil(format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" self (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
+  (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" self (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
   (e/part:ensure-message-contains-valid-input-pin self msg)
   (let ((in-map (self-input-wire-map self))
         (schematic-input-pin (e/message:pin msg)))
@@ -104,7 +107,7 @@
   (e/part:ensure-message-contains-valid-output-pin self msg)
   (e/part:push-output self msg))
 
-(defmethod push-input ((self e/schematic:schematic) (child e/part:part) (msg e/message:message))
+(defmethod push-input ((self e/schematic:schematic) (child e/leaf:leaf) (msg e/message:message))
   ;; "normal" sending to a child part
   (declare (ignore self))
   (e/part:push-input child msg))

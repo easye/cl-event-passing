@@ -19,6 +19,7 @@
    #:part
    #:parent
    #:set-parent
+   #:fetch-name ;; for debug
    #:push-input
    #:pop-input
    #:has-input-p

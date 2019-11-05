@@ -30,21 +30,28 @@
              (pin-collection pc))
     list))
 
-(defmethod ensure-member ((pc pin-collection) (pin-sym symbol))
+(defmethod ensure-member ((pc pin-collection) (pin-sym symbol) self str)
   (multiple-value-bind (pin success)
       (gethash pin-sym (pin-collection pc))
-    (assert success)
+    (unless success
+      (let ((name (e/part:fetch-name self)))
+        (let ((fmtmsg (format nil "part ~S has no ~A pin ~S" name str pin-sym)))
+          (error fmtmsg))))
+    #+nil(assert success)
     pin))
 
-(defmethod ensure-member ((pc pin-collection) (pin e/pin:pin))
+(defmethod ensure-member ((pc pin-collection) (pin e/pin:pin) self str)
   (mapc #'(lambda (actual-pin)
             (when (e/pin:pin-equal pin actual-pin)
               (return-from ensure-member actual-pin)))  ;; pin might be a fake pin with same symbol name, use pin from as-list
         (as-list pc))
-  (assert nil))
+  (let ((name (e/part:fetch-name self)))
+    (let ((fmtmsg (format nil "part ~S has no ~A pin ~S" name str pin-sym)))
+      (error fmtmsg)))
+  #+nil(assert nil))
 
-(defmethod lookup-pin ((pc pin-collection) (pin e/pin:pin))
-  (ensure-member pc pin)) ;; same code as above
+(defmethod lookup-pin ((pc pin-collection) (pin e/pin:pin) self str)
+  (ensure-member pc pin self str)) ;; same code as above
 
-(defmethod lookup-pin ((pc pin-collection) (pin-sym symbol))
-  (ensure-member pc (e/pin:make-pin pin-sym))) ;; same code as above
+(defmethod lookup-pin ((pc pin-collection) (pin-sym symbol) self str)
+  (ensure-member pc (e/pin:make-pin pin-sym) self str)) ;; same code as above
