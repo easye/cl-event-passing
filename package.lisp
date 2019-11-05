@@ -102,12 +102,14 @@
   (:use :cl)
   (:export
    #:send
-   #:inject))
+   #:inject
+   #:deliver-message))
 
 (defpackage :e/receive
   (:use :cl)
   (:export
    #:respond))
+   
 
 (defpackage :e/queue
   (:use :cl)
@@ -124,6 +126,10 @@
   (:use :cl)
   (:export
    #:pin
+   #:leaf-input-pin
+   #:leaf-output-pin
+   #:schematic-input-pin
+   #:schematic-output-pin
    #:make-pin
    #:pin-equal
    #:as-symbol))

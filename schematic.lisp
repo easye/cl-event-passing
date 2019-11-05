@@ -23,8 +23,24 @@
 
 (defmethod make-wire-map-slot-for-each-input ((self schematic) (in-pins (eql nil))))
 
+(defun make-schematic-input-pins (lis)
+  (if (null lis)
+      nil
+    (cons
+     (make-schematic-input-pin (car lis))
+     (make-schematic-input-pins (cdr lis)))))
+
+(defun make-schematic-output-pins (lis)
+  (if (null lis)
+      nil
+    (cons
+     (make-schematic-output-pin (car lis))
+     (make-schematic-output-pins (cdr lis)))))
+
 (defun make-schematic (&key (in-pins nil) (out-pins nil) (first-time nil) (name ""))
-  (let ((schem (make-instance 'schematic :in-pins in-pins :out-pins out-pins :first-time first-time :name name)))
+  (let ((ins (e/pin-colletion:make(make-schematic-input-pins in-pins))
+        (outs (make-schematic-output-pins out-pins))
+  (let ((schem (make-instance 'schematic :in-pins ins :out-pins outs :first-time first-time :name name)))
     (make-wire-map-slot-for-each-input schem in-pins)
     schem))  
 
@@ -87,8 +103,13 @@
   (e/part:ensure-message-contains-valid-input-pin self msg)
   (let ((in-map (self-input-wire-map self))
         (schematic-input-pin (e/message:pin msg)))
-    (let ((wire (find-wire-for-input-pin self in-map (e/message:pin msg))))
-      (e/wire:deliver-message self wire msg))))
+    (let ((out-part self)
+          (out-pin (e/message:pin msg)))
+      (let ((wire (find-wire-for-input-pin self in-map out-pin)))
+        (e/wire:deliver-message out-part out-pin self wire (e/message:data msg))))))
+
+(defmethod find-wire-for-pin-inside-schematic ((schem (eql nil)) (child e/part:part) (child-out-pin e/pin:pin))
+  nil)
 
 (defmethod find-wire-for-pin-inside-schematic ((schem e/schematic:schematic) (child e/part:part) (child-out-pin e/pin:pin))
   (multiple-value-bind (child-part-output-map success)

@@ -10,9 +10,14 @@
                        (name ""))
   (let ((ins (or in-pins (e/pin-collection:make-empty-collection)))
         (outs (or out-pins (e/pin-collection:make-empty-collection))))
-    (make-instance 'leaf
-                   :first-time first-time
-                   :reactor reactor
-                   :in-pins ins
-                   :out-pins outs
-                   :name name)))
+    (let ((obj
+           (make-instance 'leaf
+                          :first-time first-time
+                          :reactor reactor
+                          :in-pins ins
+                          :out-pins outs
+                          :name name)))
+      (e/pin-collection:set-parent ins obj)
+      (e/pin-collection:set-parent outs obj)
+      obj)))
+

@@ -16,3 +16,44 @@
   (e/part:push-input self msg)
   (e/dispatch:Start-Dispatcher))
 
+
+;; legal combinations:
+;;
+;l            leaf-in leaf-out schem-in schem-out
+;; leaf-in      -        -        -        -        
+;; leaf-out     ok       -       ok       ok
+;; schem-in     ok       -       ok       ok
+;; schem-out    ok       -       ok       ok
+
+(defmethod deliver ((out-part e/part:part) (out-pin e/pin:pin) (destination-part e/part:part) (destination-pin e/pin:pin) data)
+  (e/part:ensure-valid-output-pin out-part out-pin)
+  (e/part:ensure-valid-input-pin  destination-part destination-pin)
+  (e/part:push-input destination-part (e/message:make-message destination-pin data)))
+
+(defmacro illegal ()
+  (assert nil))
+
+(defmacro legal ()
+  (deliver out-part out-pin destination-part destination-pin data))
+
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-input-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-outpu-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-input-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-output-pin) (data T)) (illegal))
+
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-output-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:leaf-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-output-pin) (data T)) (legal))
+
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-output-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-input-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-output-pin) (data T)) (legal))
+
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:leaf-output-pin) (data T)) (illegal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-input-pin) (data T)) (legal))
+(defmethod deliver-message ((out-part e/part:part) (out-pin e/pin:schematic-output-pin) (destination-part e/leaf:leaf) (destination-pin e/pin:schematic-output-pin) (data T)) (legal))
+
+  

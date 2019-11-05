@@ -9,11 +9,11 @@
 (defclass pin-collection ()
   ((pin-collection :accessor pin-collection :initform (make-hash-table :test 'equal))))
 
-(defmethod from-list ((list-of-syms CONS))
+(defmethod from-list ((list-of-syms CONS) make-class)
   (let ((collection (make-instance 'pin-collection)))
     (mapc #'(lambda (sym)
               (setf (gethash sym (pin-collection collection))
-                    (e/pin:make-pin sym)))
+                    (e/pin:make-pin make-class sym)))
           list-of-syms)
     collection))
 
@@ -29,6 +29,14 @@
                  (push pin list))
              (pin-collection pc))
     list))
+
+(defmethod set-parent ((pc (eql nil))) )
+
+(defmethod set-parent ((pc pin-collection))
+  (maphash #'(lambda (sym pin)
+               (declare (ignore sym))
+               (e/pin:set-parent pin parent))
+           (pin-collection pc)))
 
 (defmethod ensure-member ((pc pin-collection) (pin-sym symbol) self str)
   (multiple-value-bind (pin success)

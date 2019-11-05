@@ -39,7 +39,7 @@
           (setf chosen-part part-under-consideration))))
     chosen-part))
 
-(defmethod @release-output-queue-externally ((p e/part:part))
+#+nil(defmethod @release-output-queue-externally ((p e/part:part))
   (let ((oq (e/part:outqueue-as-list  p)))
     (mapc #'(lambda (msg)
               (format *standard-output* "~&pin ~S message /~S/~%"
@@ -48,7 +48,7 @@
           oq))
   (e/part:make-output-queue-empty p))
 
-(defmethod @release-output-queue-internally ((schematic e/schematic:schematic) (part e/part:part))
+#+nil(defmethod @release-output-queue-internally ((schematic e/schematic:schematic) (part e/part:part))
   (let ((out-list (e/part:outqueue-as-list part)))
     (mapc #'(lambda (message)
               (let ((out-pin (e/message:pin message))
@@ -57,6 +57,18 @@
                    (e/wire:deliver-message schematic destination-wire message))))
           out-list))
   (e/part:make-output-queue-empty part))
+
+(defmethod @release-output-queue ((part e/part))
+  (let ((out-list (e/part:outqueue-as-list part)))
+    (mapc #'(lambda (message)
+              (let ((out-pin (e/message:pin message))
+                    (data (e/message:data message))
+                    (schematic (e/part:parent part)))
+                (let ((destination-wire (e/schematic:find-wire-for-pin-inside-schematic schematic part out-pin)))
+                   (e/wire:deliver-message schematic out-pin destination-wire message))))
+          out-list))
+    (e/part:make-output-queue-empty part))
+
 
 (defmethod @run-part-with-message ((p e/part:part) (m e/message:message))
   (e/part:react p m))
@@ -70,11 +82,8 @@
       (@:exit-when (null part-list))
       (let ((p (pop part-list)))
         (when (e/part:has-output-p p)
-          (let ((schematic (e/part:parent p)))
-            (if schematic
-                (@release-output-queue-internally schematic p)
-              (@release-output-queue-externally p))
-            (setf part-list *parts-list*))))))) ;; loop until every part has an empty output queue
+          (@release-output-queue p)
+          (setf part-list *parts-list*)))))) ;; loop until every part has an empty output queue
                                             ;; (this can be optimized, since we know which parts have been released, kept unoptimized for clarity)
 
 (defun @Call-First-Times ()

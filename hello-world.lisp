@@ -12,11 +12,11 @@
         (sender (e/leaf:make-leaf
                  :name "sender"
                  :first-time #'start-sender
-                 :out-pins (e/pin-collection:from-list '(:out))))
+                 :out-pins (e/pin-collection:from-list '(:out) 'e/pin:leaf-output-pin)))
         (receiver (e/leaf:make-leaf
                    :name "receiver"
                    :reactor #'receiver-display
-                   :in-pins (e/pin-collection:from-list '(:in)))))
+                   :in-pins (e/pin-collection:from-list '(:in) 'e/pin:leaf-input-pin))))
     (e/schematic:add-instance schem sender)
     (e/schematic:add-instance schem receiver)
     (let ((receiver-pair (e/part-pin:make-pair receiver (e/part:lookup-input-pin receiver :in))))
@@ -29,11 +29,11 @@
 (defun hello2 ()
   (e/dispatch:reset-dispatcher)
   ;; wire straight from sender to output of schematic
-  (let ((schem (e/schematic:make-schematic :out-pins (e/pin-collection:from-list '(:schem-out)) :name "schem"))
+  (let ((schem (e/schematic:make-schematic :out-pins (e/pin-collection:from-list '(:schem-out) 'e/pin:schematic-output-pin) :name "schem"))
         (sender (e/leaf:make-leaf
                  :name "sender"
                  :first-time #'start-sender
-                 :out-pins (e/pin-collection:from-list '(:out)))))
+                 :out-pins (e/pin-collection:from-list '(:out) 'e/pin:leaf-output-pin))))
     (e/schematic:add-instance schem sender)
     (let ((receiver-pair (e/part-pin:make-pair nil (e/part:lookup-output-pin schem :schem-out))))
       (let ((wire (e/wire:make-wire :receivers (list receiver-pair))))
@@ -48,7 +48,7 @@
   (let ((schem (e/schematic:make-schematic
                 :name "schem"
                 :first-time #'start-schematic-sender
-                :out-pins (e/pin-collection:from-list '(:schem-out)))))
+                :out-pins (e/pin-collection:from-list '(:schem-out) 'e/pin:schematic-output-pin))))
     (e/dispatch:Start-Dispatcher)))
 
 (defun hello4 ()
@@ -56,16 +56,16 @@
   (e/dispatch:reset-dispatcher)
   (let ((schem (e/schematic:make-schematic
                 :name "schem"
-                :in-pins (e/pin-collection:from-list '(:schem-in))))
+                :in-pins (e/pin-collection:from-list '(:schem-in) 'e/pin:schematic-input-pin)))
         (sender (e/leaf:make-leaf
                  :name "sender"
                  :reactor #'pass-through
-                 :in-pins (e/pin-collection:from-list '(:in))
-                 :out-pins (e/pin-collection:from-list '(:out))))
+                 :in-pins (e/pin-collection:from-list '(:in) 'e/pin:leaf-input-pin)
+                 :out-pins (e/pin-collection:from-list '(:out) 'e/pin:leaf-output-pin)))
         (receiver (e/leaf:make-leaf
                    :name "receiver"
                    :reactor #'receiver-display
-                   :in-pins (e/pin-collection:from-list '(:in)))))
+                   :in-pins (e/pin-collection:from-list '(:in) 'e/pin:leaf-input-pin))))
     (e/schematic:add-instance schem sender)
     (e/schematic:add-instance schem receiver)
     (let ((receiver-pair (e/part-pin:make-pair receiver (e/part:lookup-input-pin receiver :in)))
@@ -87,8 +87,8 @@
   (e/dispatch:reset-dispatcher)
   (let ((schem (e/schematic:make-schematic
                 :name "schem"
-                :in-pins (e/pin-collection:from-list '(:schem-in))
-                :out-pins (e/pin-collection:from-list '(:schem-out)))))
+                :in-pins (e/pin-collection:from-list '(:schem-in) 'e/pin:schematic-input-pin)
+                :out-pins (e/pin-collection:from-list '(:schem-out) 'e/pin:schematic-output-pin))))
     (let ((self-receiver-pair (e/part-pin:make-pair nil (e/part:lookup-output-pin schem :schem-out))))
       (let (;; wire is the wire between self's input (:schem-in) and self's output (:schem-out)
             (wire (e/wire:make-wire :receivers (list self-receiver-pair))))
@@ -102,22 +102,22 @@
   (e/dispatch:reset-dispatcher)
   (let ((main-schem (e/schematic:make-schematic
                      :name "main"
-                     :in-pins (e/pin-collection:from-list '(:main-schem-in))
-                     :out-pins (e/pin-collection:from-list '(:main-schem-out)))))
+                     :in-pins (e/pin-collection:from-list '(:main-schem-in) 'e/pin:schematic-input-pin)
+                     :out-pins (e/pin-collection:from-list '(:main-schem-out) 'e/pin:schematic-output-pin))))
     (let ((child-schem (e/schematic:make-schematic
                         :name "child schematic"
-                        :in-pins (e/pin-collection:from-list '(:child-schem-in))
-                        :out-pins (e/pin-collection:from-list '(:child-schem-out))))
+                        :in-pins (e/pin-collection:from-list '(:child-schem-in) 'e/pin:schematic-input-pin)
+                        :out-pins (e/pin-collection:from-list '(:child-schem-out) 'e/pin:schematic-output-pin)))
           (leaf1 (e/leaf:make-leaf
                   :name "leaf1"
                   :reactor #'pass-through
-                  :in-pins (e/pin-collection:from-list '(:in))
-                  :out-pins (e/pin-collection:from-list '(:out))))   ;; leaf1 and leaf2 use "pass-through", so they must have the same output pin name :out
+                  :in-pins (e/pin-collection:from-list '(:in) 'e/pin:leaf-input-pin)
+                  :out-pins (e/pin-collection:from-list '(:out) 'e/pin:leaf-output-pin)))   ;; leaf1 and leaf2 use "pass-through", so they must have the same output pin name :out
           (leaf2 (e/leaf:make-leaf
                   :name "leaf2"
                   :reactor #'pass-through
-                  :in-pins (e/pin-collection:from-list '(:in))
-                  :out-pins (e/pin-collection:from-list '(:out)))))
+                  :in-pins (e/pin-collection:from-list '(:in) 'e/pin:leaf-input-pin)
+                  :out-pins (e/pin-collection:from-list '(:out) 'e/pin:leaf-output-pin))))
       (e/schematic:add-instance main-schem child-schem)
       (e/schematic:add-instance child-schem leaf1)
       (e/schematic:add-instance child-schem leaf2)
