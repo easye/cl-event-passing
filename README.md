@@ -1,4 +1,6 @@
-STATUS: still debugging baseline.
+STATUS: still debugging baseline.  Failing in (test6) on some mismatch in OOP pattern-matching.
+	I made a sweeping change, creating input-pins and output-pins and have not finished debugging
+	the repercussions yet.
 
 USAGE: 
 lisp> (ql:quickload :cl-event-passing)
