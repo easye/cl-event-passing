@@ -23,26 +23,14 @@
 
 (defmethod make-wire-map-slot-for-each-input ((self schematic) (in-pins (eql nil))))
 
-(defun make-schematic-input-pins (lis)
-  (if (null lis)
-      nil
-    (cons
-     (make-schematic-input-pin (car lis))
-     (make-schematic-input-pins (cdr lis)))))
-
-(defun make-schematic-output-pins (lis)
-  (if (null lis)
-      nil
-    (cons
-     (make-schematic-output-pin (car lis))
-     (make-schematic-output-pins (cdr lis)))))
-
 (defun make-schematic (&key (in-pins nil) (out-pins nil) (first-time nil) (name ""))
-  (let ((ins (e/pin-colletion:make(make-schematic-input-pins in-pins))
-        (outs (make-schematic-output-pins out-pins))
-  (let ((schem (make-instance 'schematic :in-pins ins :out-pins outs :first-time first-time :name name)))
-    (make-wire-map-slot-for-each-input schem in-pins)
-    schem))  
+  (let ((ins (e/pin-collection:from-list in-pins 'e/pin:schematic-input-pin))
+        (outs (e/pin-collection:from-list out-pins 'e/pin:schematic-output-pin)))
+    (let ((schem (make-instance 'schematic :in-pins ins :out-pins outs :first-time first-time :name name)))
+      (e/pin-collection:set-parent-of-pins ins schem)
+      (e/pin-collection:set-parent-of-pins outs schem)
+      (make-wire-map-slot-for-each-input schem ins)
+      schem)))
 
 (defmethod add-instance ((self schematic) (instance e/part:part))
   (push instance (instances self))
@@ -100,13 +88,12 @@
   "react to a single input message to a schematic - push the message inside the schematic
    to all parts attached to given input pin"
   (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" (e/part:fetch-name self) (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
-  (e/part:ensure-message-contains-valid-input-pin self msg)
   (let ((in-map (self-input-wire-map self))
         (schematic-input-pin (e/message:pin msg)))
     (let ((out-part self)
           (out-pin (e/message:pin msg)))
       (let ((wire (find-wire-for-input-pin self in-map out-pin)))
-        (e/wire:deliver-message out-part out-pin self wire (e/message:data msg))))))
+        (e/wire:deliver-message self out-part out-pin wire (e/message:data msg))))))
 
 (defmethod find-wire-for-pin-inside-schematic ((schem (eql nil)) (child e/part:part) (child-out-pin e/pin:pin))
   nil)
@@ -125,13 +112,11 @@
   ;; return part that has new outputs, else return nil - in this case always (list self)
   ;; push-input always returns a list (or NIL, which is a list)
   (declare (ignore child))
-  (e/part:ensure-message-contains-valid-output-pin self msg)
   (e/part:push-output self msg))
 
 (defmethod push-input ((self e/schematic:schematic) (child e/schematic:schematic) (msg e/message:message))
   ;; "normal" sending to a child part
   (declare (ignore self))
-  (e/part:ensure-message-contains-valid-output-pin self msg)
   (e/part:push-output self msg))
 
 (defmethod push-input ((self e/schematic:schematic) (child e/leaf:leaf) (msg e/message:message))

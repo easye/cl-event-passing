@@ -1,7 +1,7 @@
 (in-package :e/pin)
 
 (defclass pin ()
-  ((symbol :accessor symbol :initarg :symbol)
+  ((symbl :accessor symbl :initarg :symbol)
    (parent :accessor parent :initarg :parent)))
   
 
@@ -9,15 +9,18 @@
   (eq (symbol self) (symbol other)))
 
 (defmethod as-symbol ((self pin))
-  (symbol self))
+  (symbl self))
 
-(defclass leaf-input-pin (pin) ())
-(defclass leaf-output-pin (pin) ())
-(defclass schematic-input-pin (pin) ())
-(defclass schematic-output-pin (pin) ())
+(defclass input-pin (pin) ())
+(defclass output-pin (pin) ())
 
-(defun make-pin (parent make-class sym)
-  (make-instance make-class :parent parent :symbol sym))
+(defclass leaf-input-pin (input-pin) ())
+(defclass leaf-output-pin (output-pin) ())
+(defclass schematic-input-pin (input-pin) ())
+(defclass schematic-output-pin (output-pin) ())
+
+(defun make-pin (make-class sym)
+  (make-instance make-class :symbol sym))
 
 (defmethod set-parent ((self pin) parent)
   (setf (parent self) parent))

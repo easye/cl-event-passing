@@ -10,8 +10,10 @@
    #:pin-collection
    #:from-list
    #:as-list
+   #:set-parent-of-pins
    #:ensure-member
-   #:lookup-pin))
+   #:lookup-pin
+   #:set-parent))
 
 (defpackage :e/part
   (:use :cl)
@@ -19,6 +21,7 @@
    #:part
    #:parent
    #:set-parent
+   #:set-parent-of-pins
    #:fetch-name ;; for debug
    #:push-input
    #:pop-input
@@ -33,8 +36,8 @@
    #:make-output-queue-empty
    #:outqueue-as-list
    #:output-pins-as-list
-   #:ensure-message-contains-valid-input-pin
-   #:ensure-message-contains-valid-output-pin))
+   #:ensure-is-input-pin
+   #:ensure-is-output-pin))
 
 (defpackage :e/schematic
   (:use :cl)
@@ -126,13 +129,17 @@
   (:use :cl)
   (:export
    #:pin
+   #:set-parent
+   #:input-pin
+   #:output-pin
    #:leaf-input-pin
    #:leaf-output-pin
    #:schematic-input-pin
    #:schematic-output-pin
    #:make-pin
    #:pin-equal
-   #:as-symbol))
+   #:as-symbol
+   #:set-parent))
 
 (defpackage :e/pin-wire
   (:use :cl)

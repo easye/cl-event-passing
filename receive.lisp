@@ -5,5 +5,4 @@
    the response may cause 0 or more calls to SEND"))
 
 (defmethod respond (e/part:part e/message:message)
-  (e/part:ensure-message-contains-valid-input-pin self message)
   (e/part:react part message))

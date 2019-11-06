@@ -8,16 +8,12 @@
                        (in-pins  nil)
                        (out-pins nil)
                        (name ""))
-  (let ((ins (or in-pins (e/pin-collection:make-empty-collection)))
-        (outs (or out-pins (e/pin-collection:make-empty-collection))))
-    (let ((obj
-           (make-instance 'leaf
-                          :first-time first-time
-                          :reactor reactor
-                          :in-pins ins
-                          :out-pins outs
-                          :name name)))
-      (e/pin-collection:set-parent ins obj)
-      (e/pin-collection:set-parent outs obj)
-      obj)))
+  (let ((leaf (make-instance 'leaf
+                             :first-time first-time
+                             :reactor reactor
+                             :in-pins  (e/pin-collection:from-list in-pins  'e/pin:leaf-input-pin)
+                             :out-pins (e/pin-collection:from-list out-pins 'e/pin:leaf-output-pin)
+                             :name name)))
+    (e/part:set-parent-of-pins leaf)
+    leaf))
 

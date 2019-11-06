@@ -1,5 +1,11 @@
 STATUS: still debugging baseline.
 
+USAGE: 
+lisp> (ql:quickload :cl-event-passing)
+lisp> (cl-event-passing::test)
+
+
+ESSAY:
 
 Event-passing system for CL.
 
