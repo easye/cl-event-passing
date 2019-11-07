@@ -6,7 +6,7 @@
   
 
 (defmethod pin-equal ((self pin) (other pin))
-  (eq (symbol self) (symbol other)))
+  (eq (symbl self) (symbl other)))
 
 (defmethod as-symbol ((self pin))
   (symbl self))
