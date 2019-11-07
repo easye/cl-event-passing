@@ -34,7 +34,6 @@
   (funcall (reactor self) self msg))
 
 (defmethod push-input ((self part) (msg e/message:message))
-  (declare (ignore (parent-schem)))
   (e/queue:q-push (inqueue self) msg))
 
 (defmethod push-output ((self part) (msg e/message:message))
