@@ -88,8 +88,7 @@
   "react to a single input message to a schematic - push the message inside the schematic
    to all parts attached to given input pin"
   (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" (e/part:fetch-name self) (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
-  (let ((in-map (self-input-wire-map self))
-        (schematic-input-pin (e/message:pin msg)))
+  (let ((in-map (self-input-wire-map self)))
     (let ((out-part self)
           (out-pin (e/message:pin msg)))
       (let ((wire (find-wire-for-input-pin self in-map out-pin)))
