@@ -74,25 +74,25 @@
     (setf (gethash input-pin (self-input-wire-map self))
           wire)))
 
-(defmethod find-wire-for-input-pin ((self e/schematic:schematic) in-map (pin e/pin:pin))
-  (multiple-value-bind (wire success)
-      (gethash pin in-map)
-    (unless success
-      (let ((name (e/part:fetch-name self)))
-        (let ((fmtstr (format nil "~&can't find wire in ~S for input pin ~S~%" name (e/pin:as-symbol pin))))
-          (error fmtstr))))
-    #+nil(assert success)
-    wire))
+(defmethod find-wire-for-input-pin ((self e/schematic:schematic) (pin e/pin:pin))
+  (let ((in-map (self-input-wire-map self)))
+    (multiple-value-bind (wire success)
+        (gethash pin in-map)
+      (unless success
+        (let ((name (e/part:fetch-name self)))
+          (let ((fmtstr (format nil "~&can't find wire in ~S for input pin ~S~%" name (e/pin:as-symbol pin))))
+            (error fmtstr))))
+      #+nil(assert success)
+      wire)))
 
 (defmethod schematic-reactor ((self schematic) (msg e/message:message))
   "react to a single input message to a schematic - push the message inside the schematic
    to all parts attached to given input pin"
   (format *error-output* "~&schematic ~S reactor gets message ~S on pin ~S~%" (e/part:fetch-name self) (e/message:data msg) (e/pin:as-symbol (e/message:pin msg)))
-  (let ((in-map (self-input-wire-map self)))
-    (let ((out-part self)
-          (out-pin (e/message:pin msg)))
-      (let ((wire (find-wire-for-input-pin self in-map out-pin)))
-        (e/wire:deliver-message self out-part out-pin wire (e/message:data msg))))))
+  (let ((out-part self)
+        (out-pin (e/message:pin msg)))
+    (let ((wire (find-wire-for-input-pin self out-pin)))
+      (e/wire:deliver-message self out-part out-pin wire (e/message:data msg)))))
 
 (defmethod find-wire-for-pin-inside-schematic ((schem (eql nil)) (child e/part:part) (child-out-pin e/pin:pin))
   nil)
