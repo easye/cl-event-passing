@@ -1,0 +1,27 @@
+message 1 : INJECT --> main-schem.:main-schem-in
+             ???       (schematic) (schematic-input-pin)
+	     
+message 2 : main-schem.:main-schem-in --> child-schem.:child-schem-in
+            (schematic)  (schematic-input-pin)
+	                                  (schematic)  (schematic-input-pin)
+
+
+message 3: child-schem.:child-schem-in --> leaf1.:leaf1-in
+           (schematic)  (schematic-input-pin)
+	                                   (leaf)  (leaf-input-pin)
+
+message 4: leaf1.:leaf1-out --> leaf2.:leaf2-in
+           (leaf)  (leaf-output-pin)
+	                        (leaf) (leaf-input-pin)
+
+message 5: leaf2.:leaf2-out --> child-schem.:child-schem-out
+           (leaf)  (leaf-output-pin)
+	                        (schematic)  (schematic-output-pin)
+
+message 6: child-schem.:child-schem-out --> main-schem.:main-schem-out
+           (schematic)  (schematic-output-pin)
+	                                    (schematic) (schematic-output-pin)
+
+message 7: main-schem.:main-schem-out --> nil.don't-care
+           (schematic) (schematic-output-pin)
+	                                  NIL
