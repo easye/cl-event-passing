@@ -64,6 +64,7 @@
               (let ((out-pin (e/message:pin message))
                     (data (e/message:data message))
                     (schematic (e/part:parent part)))
+                (declare (ignore data))
                 (let ((destination-wire (e/schematic:find-wire-for-pin-inside-schematic schematic part out-pin)))
                    (e/wire:deliver-message schematic part out-pin destination-wire message))))
           out-list))

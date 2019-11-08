@@ -126,7 +126,6 @@
 
 (defmethod push-input ((self e/schematic:schematic) (child e/schematic:schematic) (msg e/message:message))
   ;; "normal" sending to a child part
-  (declare (ignore self))
   (e/part:push-output self msg))
 
 (defmethod push-input ((self e/schematic:schematic) (child e/leaf:leaf) (msg e/message:message))

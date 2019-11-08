@@ -1,6 +1,6 @@
 (in-package :e/wire)
 
-(defmethod make-wire (&key (receivers cl:CONS))
+(defmethod make-wire (&key (receivers nil))
   (make-instance 'wire :receivers receivers))
 
 (defmethod deliver-message ((schem e/schematic:schematic) (out-part e/part:part) (out-pin e/pin:pin) (wire e/wire:wire) (data T))
